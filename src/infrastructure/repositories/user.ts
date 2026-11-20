@@ -5,6 +5,7 @@ import type { MongoDbConnection } from "../mongodb";
 
 type UserDocument = {
     name: User["name"];
+    email: User["email"];
 };
 
 export class MongoUserRepository implements UserRepository {
@@ -23,8 +24,8 @@ export class MongoUserRepository implements UserRepository {
         const collection = await this.getCollection();
 
         await collection.updateOne(
-            { name: user.name },
-            { $set: { name: user.name } },
+            { email: user.email },
+            { $set: { name: user.name, email: user.email } },
             { upsert: true },
         );
 
@@ -39,6 +40,17 @@ export class MongoUserRepository implements UserRepository {
             return null;
         }
 
-        return { name: user.name };
+        return { name: user.name, email: user.email };
+    }
+
+    public async findByEmail(email: User["email"]): Promise<User | null> {
+        const collection = await this.getCollection();
+        const user = await collection.findOne({ email });
+
+        if (user === null) {
+            return null;
+        }
+
+        return { name: user.name, email: user.email };
     }
 }
